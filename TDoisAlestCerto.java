@@ -9,7 +9,7 @@ public class TDoisAlestCerto {
     private static int rows;
     private static int cols;
     private static int totalDistance = 0;
-    private static HashMap<Integer, int[]> positions = new HashMap<>();
+    private static HashMap<Integer, int[]> positions = new HashMap<>(); // guarda a posicao x,y de cada porto
 
     public static void main(String[] args) {
         In arq = new In("mapa2000.txt");
@@ -39,19 +39,19 @@ public class TDoisAlestCerto {
         }
 
         for (int i = 1; i < 10; i++) {
-            int[] startPosition = positions.get(i);
+            int[] startPosition = positions.get(i); //devolve as coordenadas x,y do ponto 1
             if (i < 9) {
-                int destValue = i + 1;
-                int[] desPosition = positions.get(destValue);
-                int distance = bfs(startPosition[0], startPosition[1], desPosition[0], desPosition[1]);
-                if (distance != -1) {
+                int destValue = i + 1; //destino eh o proximo porto -> 1 + 1 = 2
+                int[] desPosition = positions.get(destValue); // pega as coordenadas do destino
+                int distance = bfs(startPosition[0], startPosition[1], desPosition[0], desPosition[1]); //calcula a menor distancia do inicio pro destino
+                if (distance != -1) { // se encontrou o caminho printa
                     System.out.printf("%d to %d: %d\n", i, destValue, distance);
                 }
-                if (distance == -1 && ++destValue < 10) {
+                if (distance == -1 && ++destValue < 10) { //se nao encontrou o caminho e o valor destino eh menor que 10
                     while (destValue < 10) {
                         desPosition = positions.get(destValue);
                         distance = bfs(startPosition[0], startPosition[1], desPosition[0], desPosition[1]);
-                        if (distance == -1) {
+                        if (distance == -1) { //se nao conseguir chegar ele vai pro proximo
                             destValue++;
                         } else {
                             System.out.printf("%d to %d: %d\n", i, destValue, distance);
