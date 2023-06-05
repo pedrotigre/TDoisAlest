@@ -4,15 +4,15 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
-public class TDoisAlest {
+public class TDoisAlestCerto {
     private static char[][] graph;
     private static int rows;
     private static int cols;
     private static int totalDistance = 0;
-    private static final HashMap<Integer, int[]> positions = new HashMap<>(); // guarda a posicao x,y de cada porto
+    private static HashMap<Integer, int[]> positions = new HashMap<>();
 
     public static void main(String[] args) {
-        In arq = new In("mapa1000.txt");
+        In arq = new In("mapa2000.txt");
         rows = Integer.parseInt(arq.readString());
         cols = Integer.parseInt(arq.readString());
         graph = new char[rows][cols];
@@ -39,16 +39,16 @@ public class TDoisAlest {
         }
 
         for (int i = 1; i < 10; i++) {
-            int[] startPosition = positions.get(i); //devolve as coordenadas x,y do ponto 1
+            int[] startPosition = positions.get(i);
             if (i < 9) {
-                int destValue = i + 1; //destino eh o proximo porto -> 1 + 1 = 2
-                int[] desPosition = positions.get(destValue); //devolve a coordenada do porto de destino
-                int distance = bfs(startPosition[0], startPosition[1], desPosition[0], desPosition[1]); //calcula a menor distancia do inicio pro destino
+                int destValue = i + 1;
+                int[] desPosition = positions.get(destValue);
+                int distance = bfs(startPosition[0], startPosition[1], desPosition[0], desPosition[1]);
                 if (distance != -1) {
                     System.out.printf("%d to %d: %d\n", i, destValue, distance);
                 }
                 if (distance == -1 && ++destValue < 10) {
-                    while (destValue < 10 && distance == -1) {
+                    while (destValue < 10) {
                         desPosition = positions.get(destValue);
                         distance = bfs(startPosition[0], startPosition[1], desPosition[0], desPosition[1]);
                         if (distance == -1) {
@@ -61,18 +61,29 @@ public class TDoisAlest {
                     }
                 }
                 totalDistance += distance;
-            } else { // TODO
-                startPosition = positions.get(9);
-                int[] desPosition = positions.get(1);
-                int distance = bfs(startPosition[0], startPosition[1], desPosition[0], desPosition[1]);
-                if (distance != -1) {
+                if (destValue >= 10){
+                    desPosition = positions.get(1);
+                    distance = bfs(startPosition[0], startPosition[1], desPosition[0], desPosition[1]);
+                    System.out.printf("%d to %d: %d\n", i, 1, distance);
+                    totalDistance += distance + 1;
+                    break;
+                }
+
+                if (destValue == 9){
+                    startPosition = positions.get(9);
+                    desPosition = positions.get(1);
+                    distance = bfs(startPosition[0], startPosition[1], desPosition[0], desPosition[1]);
                     System.out.printf("%d to %d: %d\n", 9, 1, distance); // Distance 9 to 1
                     totalDistance += distance;
-
                 }
+
             }
+
+
         }
+
         System.out.println("Total distance: " + totalDistance);
+
     }
 
     private static int bfs(int startRow, int startCol, int destRow, int destCol) {

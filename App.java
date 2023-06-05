@@ -1,22 +1,43 @@
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import java.util.*;
 
-public class TDoisAlest {
-    private static char[][] graph;
+public class App {
+
+    private Scanner sc = new Scanner(System.in);
     private static int rows;
     private static int cols;
+    private static char[][] graph;
     private static int totalDistance = 0;
-    private static final HashMap<Integer, int[]> positions = new HashMap<>(); // guarda a posicao x,y de cada porto
+    private static final HashMap<Integer, int[]> positions = new HashMap<>();
 
-    public static void main(String[] args) {
-        In arq = new In("mapa1000.txt");
+
+
+    public void run() {
+        System.out.print("Informe o nome do arquivo com extensao: ");
+        var fileName = sc.nextLine();
+
+        var in = readFile(fileName);
+        populateGraph(in);
+
+
+
+
+    }
+
+    private static void menu() {
+
+    }
+
+    private In readFile(String fileName){
+        In arq = new In(fileName);
         rows = Integer.parseInt(arq.readString());
         cols = Integer.parseInt(arq.readString());
         graph = new char[rows][cols];
 
+        return arq;
+    }
+
+
+    private void populateGraph(In arq){
         String[] row = new String[rows];
         for (int i = 0; i < rows; i++) {
             row[i] = arq.readString();
@@ -27,7 +48,10 @@ public class TDoisAlest {
                 graph[i][j] = rowz[j];
             }
         }
+        savePortsCoordinates(row);
+    }
 
+    private void savePortsCoordinates(String[] row){
         for (int i = 0; i < rows; i++) {
             char[] rowz = row[i].toCharArray();
             for (int j = 0; j < cols; j++) {
@@ -37,7 +61,9 @@ public class TDoisAlest {
                 }
             }
         }
+    }
 
+    private void calculateDistance(){
         for (int i = 1; i < 10; i++) {
             int[] startPosition = positions.get(i); //devolve as coordenadas x,y do ponto 1
             if (i < 9) {
@@ -48,7 +74,7 @@ public class TDoisAlest {
                     System.out.printf("%d to %d: %d\n", i, destValue, distance);
                 }
                 if (distance == -1 && ++destValue < 10) {
-                    while (destValue < 10 && distance == -1) {
+                    while (destValue < 10) {
                         desPosition = positions.get(destValue);
                         distance = bfs(startPosition[0], startPosition[1], desPosition[0], desPosition[1]);
                         if (distance == -1) {
@@ -71,9 +97,12 @@ public class TDoisAlest {
 
                 }
             }
+
         }
+
         System.out.println("Total distance: " + totalDistance);
     }
+
 
     private static int bfs(int startRow, int startCol, int destRow, int destCol) {
         Set<Character> set = new HashSet<>(Arrays.asList('1', '2', '3', '4', '5', '6', '7', '8', '9'));
@@ -131,5 +160,7 @@ public class TDoisAlest {
         // destination node
         return -1;
     }
+
+
 
 }
