@@ -1,3 +1,4 @@
+import java.io.FileNotFoundException;
 import java.util.*;
 
 public class App {
@@ -7,25 +8,25 @@ public class App {
     private static int cols;
     private static char[][] graph;
     private static int totalDistance = 0;
-    private static final HashMap<Integer, int[]> positions = new HashMap<>();
-
+    private static final HashMap<Integer, int[]> positions = new HashMap<>(); //guarda a posicao x,y de cada porto
 
 
     public void run() {
         System.out.print("Informe o nome do arquivo com extensao: ");
         var fileName = sc.nextLine();
 
-        try{
-            var in = readFile(fileName);
-            var row = populateGraph(in);
-            savePortsCoordinates(row);
-            calculateDistance();
-        }catch (Exception e){
-            System.out.println("Arquivo nao encontrado");
-        }
+//        try {
+        var in = readFile(fileName);
+        var row = populateGraph(in);
+        savePortsCoordinates(row);
+        calculateDistance();
+//        } catch (Exception e) {
+//            System.out.println(e);
+//            System.out.println("Arquivo nao encontrado");
+//        }
     }
 
-    private In readFile(String fileName){
+    private In readFile(String fileName) {
         In arq = new In(fileName);
         rows = Integer.parseInt(arq.readString());
         cols = Integer.parseInt(arq.readString());
@@ -35,7 +36,7 @@ public class App {
     }
 
 
-    private String[] populateGraph(In arq){
+    private String[] populateGraph(In arq) {
         String[] row = new String[rows];
         for (int i = 0; i < rows; i++) {
             row[i] = arq.readString();
@@ -49,56 +50,54 @@ public class App {
         return row;
     }
 
-    private void savePortsCoordinates(String[] row){
+    private void savePortsCoordinates(String[] row) {
         for (int i = 0; i < rows; i++) {
             char[] rowz = row[i].toCharArray();
             for (int j = 0; j < cols; j++) {
                 graph[i][j] = rowz[j];
                 if (Character.isDigit(graph[i][j])) {
-                    positions.put((Integer.parseInt("" + graph[i][j])), new int[] { i, j });
+                    positions.put((Integer.parseInt("" + graph[i][j])), new int[]{i, j});
                 }
             }
         }
     }
 
-    private void calculateDistance(){
-        for (int i = 1; i < 10; i++) {
+    private void calculateDistance() {
+        for (int i = 1; i < 9; i++) {
             int[] startPosition = positions.get(i);
-            if (i < 9) {
-                int destValue = i + 1;
-                int[] desPosition = positions.get(destValue);
-                int distance = bfs(startPosition[0], startPosition[1], desPosition[0], desPosition[1]);
-                if (distance != -1) {
-                    System.out.printf("%d to %d: %d\n", i, destValue, distance);
-                }
-                if (distance == -1 && ++destValue < 10) {
-                    while (destValue < 10) {
-                        desPosition = positions.get(destValue);
-                        distance = bfs(startPosition[0], startPosition[1], desPosition[0], desPosition[1]);
-                        if (distance == -1) {
-                            destValue++;
-                        } else {
-                            System.out.printf("%d to %d: %d\n", i, destValue, distance);
-                            i = destValue - 1;
-                            break;
-                        }
+            int destValue = i + 1;
+            int[] desPosition = positions.get(destValue);
+            int distance = bfs(startPosition[0], startPosition[1], desPosition[0], desPosition[1]);
+            if (distance != -1) {
+                System.out.printf("%d to %d: %d\n", i, destValue, distance);
+            } else {
+                destValue++;
+                while (destValue < 10) {
+                    desPosition = positions.get(destValue);
+                    distance = bfs(startPosition[0], startPosition[1], desPosition[0], desPosition[1]);
+                    if (distance == -1) {
+                        destValue++;
+                    } else {
+                        System.out.printf("%d to %d: %d\n", i, destValue, distance);
+                        i = destValue - 1; //para que serve essa linha?
+                        break;
                     }
                 }
+            }
+            totalDistance += distance;
+            if (destValue >= 10) {
+                desPosition = positions.get(1);
+                distance = bfs(startPosition[0], startPosition[1], desPosition[0], desPosition[1]);
+                System.out.printf("%d to %d: %d\n", i, 1, distance);
+                totalDistance += distance + 1;
+                break;
+            }
+            if (destValue == 9) {
+                startPosition = positions.get(9);
+                desPosition = positions.get(1);
+                distance = bfs(startPosition[0], startPosition[1], desPosition[0], desPosition[1]);
+                System.out.printf("%d to %d: %d\n", 9, 1, distance); // Distance 9 to 1
                 totalDistance += distance;
-                if (destValue >= 10){
-                    desPosition = positions.get(1);
-                    distance = bfs(startPosition[0], startPosition[1], desPosition[0], desPosition[1]);
-                    System.out.printf("%d to %d: %d\n", i, 1, distance);
-                    totalDistance += distance + 1;
-                    break;
-                }
-                if (destValue == 9){
-                    startPosition = positions.get(9);
-                    desPosition = positions.get(1);
-                    distance = bfs(startPosition[0], startPosition[1], desPosition[0], desPosition[1]);
-                    System.out.printf("%d to %d: %d\n", 9, 1, distance); // Distance 9 to 1
-                    totalDistance += distance;
-                }
             }
         }
         System.out.println("Total distance: " + totalDistance);
@@ -112,10 +111,10 @@ public class App {
 
         // Initialize the BFS queue with the starting point
         LinkedList<int[]> queue = new LinkedList<>();
-        queue.add(new int[] { startRow, startCol });
+        queue.add(new int[]{startRow, startCol});
         boolean[][] visited = new boolean[rows][cols];
         visited[startRow][startCol] = true;
-        final int[][] DIRECTIONS = new int[][] { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } };
+        final int[][] DIRECTIONS = new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
         // Initialize the distance array
         int[][] distance = new int[rows][cols];
         for (int i = 0; i < rows; i++) {
@@ -152,7 +151,7 @@ public class App {
                     distance[nextRow][nextCol] = distance[currRow][currCol] + 1;
 
                     // Add the next point to the BFS queue
-                    queue.add(new int[] { nextRow, nextCol });
+                    queue.add(new int[]{nextRow, nextCol});
                 }
             }
         }
