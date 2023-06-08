@@ -1,6 +1,8 @@
-import java.io.FileNotFoundException;
 import java.util.*;
 
+/**
+ * Autores: Pedro Tigre e Rodrigo Renck
+ */
 public class App {
 
     private Scanner sc = new Scanner(System.in);
@@ -14,16 +16,10 @@ public class App {
     public void run() {
         System.out.print("Informe o nome do arquivo com extensao: ");
         var fileName = sc.nextLine();
-
-//        try {
         var in = readFile(fileName);
         var row = populateGraph(in);
         savePortsCoordinates(row);
         calculateDistance();
-//        } catch (Exception e) {
-//            System.out.println(e);
-//            System.out.println("Arquivo nao encontrado");
-//        }
     }
 
     private In readFile(String fileName) {
@@ -79,7 +75,7 @@ public class App {
                         destValue++;
                     } else {
                         System.out.printf("%d to %d: %d\n", i, destValue, distance);
-                        i = destValue - 1; //para que serve essa linha?
+                        i = destValue - 1;
                         break;
                     }
                 }
@@ -96,7 +92,7 @@ public class App {
                 startPosition = positions.get(9);
                 desPosition = positions.get(1);
                 distance = bfs(startPosition[0], startPosition[1], desPosition[0], desPosition[1]);
-                System.out.printf("%d to %d: %d\n", 9, 1, distance); // Distance 9 to 1
+                System.out.printf("%d to %d: %d\n", 9, 1, distance);
                 totalDistance += distance;
             }
         }
@@ -104,18 +100,17 @@ public class App {
     }
 
 
+    //retorna a distancia ou retorna -1 caso não exista caminho possivel
     private static int bfs(int startRow, int startCol, int destRow, int destCol) {
         Set<Character> set = new HashSet<>(Arrays.asList('1', '2', '3', '4', '5', '6', '7', '8', '9'));
         set.remove(graph[startRow][startCol]);
         set.remove(graph[destRow][destCol]);
 
-        // Initialize the BFS queue with the starting point
         LinkedList<int[]> queue = new LinkedList<>();
         queue.add(new int[]{startRow, startCol});
         boolean[][] visited = new boolean[rows][cols];
         visited[startRow][startCol] = true;
         final int[][] DIRECTIONS = new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-        // Initialize the distance array
         int[][] distance = new int[rows][cols];
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
@@ -124,40 +119,28 @@ public class App {
         }
         distance[startRow][startCol] = 0;
 
-        // Perform the BFS
         while (!queue.isEmpty()) {
             int[] curr = queue.removeFirst();
             int currRow = curr[0];
             int currCol = curr[1];
 
-            // Check if we've reached the destination
             if (currRow == destRow && currCol == destCol) {
                 return distance[currRow][currCol];
             }
 
-            // Visit each adjacent point
             for (int[] dir : DIRECTIONS) {
                 int nextRow = currRow + dir[0];
                 int nextCol = currCol + dir[1];
 
-                // Check if the next point is a valid point to visit
                 if (nextRow >= 0 && nextRow < rows && nextCol >= 0 && nextCol < cols
                         && graph[nextRow][nextCol] != '*' && !visited[nextRow][nextCol]
                         && !set.contains(graph[nextRow][nextCol])) {
-                    // Mark the next point as visited
                     visited[nextRow][nextCol] = true;
-
-                    // Update the distance to the next point
                     distance[nextRow][nextCol] = distance[currRow][currCol] + 1;
-
-                    // Add the next point to the BFS queue
                     queue.add(new int[]{nextRow, nextCol});
                 }
             }
         }
-
-        // If we reach this point, there is no path from the start node to the
-        // destination node
         return -1;
     }
 }
